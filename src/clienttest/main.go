@@ -33,7 +33,7 @@ func main() {
 
 	fmt.Println("start!!")
 	var waitg sync.WaitGroup
-	for j := 0; j < 500; j++ {
+	for j := 0; j < 5000; j++ {
 		waitg.Add(1)
 
 		go func() {
@@ -42,7 +42,7 @@ func main() {
 			waitg.Done()
 		}()
 
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 20)
 	}
 
 	waitg.Wait()
