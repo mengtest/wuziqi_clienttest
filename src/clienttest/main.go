@@ -10,14 +10,8 @@ import (
 	"sync"
 	"time"
 
-	//"os"
-	//"os/signal"
-	//"io"
 	"fmt"
-	//	"net"
-	//"dq/rpc"
-	//"time"
-	//"net/rpc/jsonrpc"
+
 	"dq/datamsg"
 
 	"math/rand"
@@ -31,9 +25,33 @@ var addr = flag.String("addr", "www.game5868.top:443", "http service address")
 
 func main() {
 
+	//	time1 := "2018-03-20 08:50:29"
+	//	y1, m1, d1 := time.Now().Date()
+	//	time2 := time.Now().Format("2006-01-02")
+
+	//	t1, err := time.Parse("2006-01-02 15:04:05", time1)
+	//	t1 = t1.AddDate(0, 0, 100)
+	//	t2, err := time.Parse("2006-01-02", time2)
+	//	if err != nil {
+	//		fmt.Println("---Before", err.Error())
+	//	}
+	//	if t1.Before(t2) {
+	//		fmt.Println("-11--Before")
+	//	} else {
+	//		fmt.Println("-22--Before")
+	//	}
+
+	//	fmt.Println("---t1:%d", t1)
+	//	fmt.Println("---t2:%d", t2)
+
+	//	fmt.Println("---%d---%d----%d", y1, m1, d1)
+	//	fmt.Println("---time2:%d", time2)
+
+	//	return
+
 	fmt.Println("start!!")
 	var waitg sync.WaitGroup
-	for j := 0; j < 5000; j++ {
+	for j := 0; j < 200; j++ {
 		waitg.Add(1)
 
 		go func() {
@@ -58,7 +76,7 @@ func main() {
 //	JsonData  string
 
 func client(id string) {
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/connect"}
+	u := url.URL{Scheme: "wss", Host: *addr, Path: "/connect"}
 	fmt.Println("start game to ", id)
 
 	c, _, _ := websocket.DefaultDialer.Dial(u.String(), nil)
