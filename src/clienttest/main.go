@@ -99,6 +99,19 @@ func client(id string) {
 	var myUid = -1
 	var myInfo = datamsg.MsgGame5GPlayerInfo{}
 	var gameInfo = datamsg.MsgGame5GInfo{}
+
+	var myai = AI{Myseat: 1, PlayerSeat: 2}
+
+	var isfirst = true
+
+	var gonum = 0 //步数
+
+	//	type AI struct {
+	//	Qipan      [][]int
+	//	Myseat     int
+	//	PlayerSeat int
+	//}
+
 	//var qizipos = make([]int, 0)
 	for {
 		_, data, err := c.ReadMessage()
@@ -143,10 +156,21 @@ func client(id string) {
 				for _, v := range h2.PlayerInfo {
 					if v.Uid == myUid {
 						myInfo = v
+
+						//myai.Myseat = myInfo.SeatIndex
 					}
 				}
 
 				gameInfo = h2.GameInfo
+
+				for y := 0; y < 15; y++ {
+					for x := 0; x < 15; x++ {
+						myai.Qipan[y][x] = gameInfo.QiPan[y][x] + 1
+					}
+				}
+
+				//myai.Qipan = gameInfo.QiPan
+				//
 
 			} else if h1.MsgType == "SC_MsgHallInfo" {
 				h2 := &datamsg.SC_MsgHallInfo{}
@@ -166,17 +190,71 @@ func client(id string) {
 				}
 				//轮到我了
 				if h2.GameSeatIndex == myInfo.SeatIndex {
-					time.Sleep(time.Second * 2)
+
 					x := -1
 					y := -1
-					for {
-						x = rand.Intn(15)
-						y = rand.Intn(15)
+					//
+					if isfirst == true {
+
+						sleeptime := rand.Intn(2) + 2
+						time.Sleep(time.Second * time.Duration(sleeptime))
+
+						x = rand.Intn(5) + 7
+						y = rand.Intn(5) + 7
+
 						if gameInfo.QiPan[y][x] < 0 {
 							lock.Lock()
 							c.WriteMessage(websocket.TextMessage, CS_DoGame5G(x, y))
 							lock.Unlock()
-							break
+						}
+						isfirst = false
+
+					} else {
+						//前面几步快速下棋
+						if gonum < 6 {
+							sleeptime := rand.Intn(2) + 2
+							time.Sleep(time.Second * time.Duration(sleeptime))
+						} else if gonum < 12 {
+							sleeptime := rand.Intn(3) + 2
+							time.Sleep(time.Second * time.Duration(sleeptime))
+						} else if gonum < 24 {
+							sleeptime := rand.Intn(4) + 2
+							time.Sleep(time.Second * time.Duration(sleeptime))
+						} else if gonum < 40 {
+							sleeptime := rand.Intn(5) + 2
+							time.Sleep(time.Second * time.Duration(sleeptime))
+						} else {
+							sleeptime := rand.Intn(10) + 2
+							time.Sleep(time.Second * time.Duration(sleeptime))
+						}
+
+						for {
+							maxScore := -1
+							for y1 := 0; y1 < 15; y1++ {
+								for x1 := 0; x1 < 15; x1++ {
+									if myai.Qipan[y1][x1] == 0 {
+										score := myai.Evaluate(x1, y1, myInfo.SeatIndex+1)
+										if score > maxScore {
+											maxScore = score
+											x = x1
+											y = y1
+										} else if score == maxScore {
+											if rand.Intn(4) == 0 {
+												maxScore = score
+												x = x1
+												y = y1
+											}
+										}
+									}
+								}
+							}
+
+							if gameInfo.QiPan[y][x] < 0 {
+								lock.Lock()
+								c.WriteMessage(websocket.TextMessage, CS_DoGame5G(x, y))
+								lock.Unlock()
+								break
+							}
 						}
 					}
 
@@ -192,6 +270,9 @@ func client(id string) {
 				}
 
 				gameInfo.QiPan[h2.Y][h2.X] = h2.GameSeatIndex
+				myai.Qipan[h2.Y][h2.X] = h2.GameSeatIndex + 1
+				isfirst = false
+				gonum++
 
 			} else if h1.MsgType == "SC_GameOver" {
 				h2 := &datamsg.SC_GameOver{}
@@ -200,6 +281,8 @@ func client(id string) {
 					fmt.Println(err.Error())
 					return
 				}
+				isfirst = true
+				gonum = 0
 				time.Sleep(time.Second * 2)
 				lock.Lock()
 				c.WriteMessage(websocket.TextMessage, CS_QuickGame())
@@ -229,7 +312,7 @@ func CS_MsgQuickLogin(id string) []byte {
 	data := msgBase("Login", "CS_MsgQuickLogin")
 
 	jd := &datamsg.CS_MsgQuickLogin{}
-	jd.Platform = "ios"
+	jd.Platform = "android"
 	jd.MachineId = "android_" + id
 
 	jdbytes, _ := json.Marshal(jd)
