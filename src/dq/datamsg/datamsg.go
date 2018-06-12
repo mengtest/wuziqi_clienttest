@@ -43,6 +43,8 @@ type CS_MsgWeiXingLogin struct {
 type CS_MsgQuickLogin struct {
 	Platform  string
 	MachineId string
+	Name      string
+	Avatar    string
 	//Abc			[10][10]int
 }
 

@@ -25,33 +25,29 @@ var addr = flag.String("addr", "www.game5868.top:443", "http service address")
 
 func main() {
 
-	//	time1 := "2018-03-20 08:50:29"
-	//	y1, m1, d1 := time.Now().Date()
-	//	time2 := time.Now().Format("2006-01-02")
+	//	score1 := make([]ScorePoint, 5)
 
-	//	t1, err := time.Parse("2006-01-02 15:04:05", time1)
-	//	t1 = t1.AddDate(0, 0, 100)
-	//	t2, err := time.Parse("2006-01-02", time2)
-	//	if err != nil {
-	//		fmt.Println("---Before", err.Error())
+	//	pushScore(&score1, ScorePoint{Score: 5, X: 10, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 15, X: 11, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 25, X: 12, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 35, X: 13, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 51, X: 14, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 14, X: 15, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 32, X: 16, Y: 10})
+	//	pushScore(&score1, ScorePoint{Score: 18, X: 17, Y: 10})
+
+	//	for k, v := range score1 {
+	//		fmt.Println("----")
+	//		fmt.Println(k)
+	//		fmt.Println(v.Score)
+	//		fmt.Println(v.X)
+	//		fmt.Println("----")
 	//	}
-	//	if t1.Before(t2) {
-	//		fmt.Println("-11--Before")
-	//	} else {
-	//		fmt.Println("-22--Before")
-	//	}
-
-	//	fmt.Println("---t1:%d", t1)
-	//	fmt.Println("---t2:%d", t2)
-
-	//	fmt.Println("---%d---%d----%d", y1, m1, d1)
-	//	fmt.Println("---time2:%d", time2)
-
-	//	return
+	//	time.Sleep(time.Millisecond * 20000)
 
 	fmt.Println("start!!")
 	var waitg sync.WaitGroup
-	for j := 0; j < 200; j++ {
+	for j := 0; j < 50; j++ {
 		waitg.Add(1)
 
 		go func() {
@@ -66,6 +62,26 @@ func main() {
 	waitg.Wait()
 	fmt.Println("over!!")
 
+}
+
+type ScorePoint struct {
+	Score int
+	X     int
+	Y     int
+}
+
+func pushScore(score *[]ScorePoint, cursocre ScorePoint) {
+	for k := 0; k < len(*score); k++ {
+		if cursocre.Score > (*score)[k].Score || (rand.Intn(4) == 0 && cursocre.Score == (*score)[k].Score) {
+			for k1 := len(*score) - 1; k1 > k; k1-- {
+				if k1-1 >= 0 {
+					(*score)[k1] = (*score)[k1-1]
+				}
+			}
+			(*score)[k] = cursocre
+			break
+		}
+	}
 }
 
 //ModeType  string
@@ -229,24 +245,38 @@ func client(id string) {
 						}
 
 						for {
-							maxScore := -1
+							//maxScore := -1
+
+							//score1 := make([]int, 5)
+							score1 := make([]ScorePoint, 5)
+
 							for y1 := 0; y1 < 15; y1++ {
 								for x1 := 0; x1 < 15; x1++ {
 									if myai.Qipan[y1][x1] == 0 {
 										score := myai.Evaluate(x1, y1, myInfo.SeatIndex+1)
-										if score > maxScore {
-											maxScore = score
-											x = x1
-											y = y1
-										} else if score == maxScore {
-											if rand.Intn(4) == 0 {
-												maxScore = score
-												x = x1
-												y = y1
-											}
-										}
+
+										pushScore(&score1, ScorePoint{Score: score, X: x1, Y: y1})
+
+										//										if score > maxScore {
+										//											maxScore = score
+										//											x = x1
+										//											y = y1
+										//										} else if score == maxScore {
+										//											if rand.Intn(4) == 0 {
+										//												maxScore = score
+										//												x = x1
+										//												y = y1
+										//											}
+										//										}
 									}
 								}
+							}
+							if rand.Intn(8) == 0 {
+								x = score1[0].X
+								y = score1[0].Y
+							} else {
+								x = score1[1].X
+								y = score1[1].Y
 							}
 
 							if gameInfo.QiPan[y][x] < 0 {
@@ -307,6 +337,12 @@ func msgBase(modeType string, msgType string) *datamsg.MsgBase {
 	return data
 }
 
+var names = []string{"粉笔超人", "走", "灯火阑珊", "wing", "v爱阅读", "华云", "小朋友", "jessica", "稳稳", "舒静模",
+	"何晓芳", "自醉自演", "妞妈", "小雅", "小鹅子", "孟茜茜", "深蓝李子", "蒲公英", "小丸子", "patient",
+	"烂菜叶", "燕妮", "木木妈", "珍惜现在", "叶赫", "小甘甘", "临西", "报单手", "岁月如歌", "一缕阳光",
+	"缘来如此", "淡定", "美好生活", "浮云", "荟", "灿烂人生", "静心倾听", "小玉", "小雅", "敏敏",
+	"痛", "十一先生", "无所谓", "ablajan", "顺其自然", "草原花", "蓝心", "小柠檬", "静心好", "似水流年"}
+
 //快速登录
 func CS_MsgQuickLogin(id string) []byte {
 	data := msgBase("Login", "CS_MsgQuickLogin")
@@ -314,6 +350,10 @@ func CS_MsgQuickLogin(id string) []byte {
 	jd := &datamsg.CS_MsgQuickLogin{}
 	jd.Platform = "android"
 	jd.MachineId = "android_" + id
+
+	idint, _ := strconv.Atoi(id)
+	jd.Name = names[idint%50]
+	jd.Avatar = "resources/head/head" + strconv.Itoa(idint%50+1) + ".jpg"
 
 	jdbytes, _ := json.Marshal(jd)
 	data.JsonData = string(jdbytes)
