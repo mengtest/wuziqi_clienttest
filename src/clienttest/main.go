@@ -19,9 +19,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "www.game5868.top:443", "http service address")
+//var addr = flag.String("addr", "www.game5868.top:443", "http service address")
 
-//var addr = flag.String("addr", "127.0.0.1:1117", "http service address")
+var addr = flag.String("addr", "127.0.0.1:1117", "http service address")
 
 func main() {
 
@@ -92,7 +92,7 @@ func pushScore(score *[]ScorePoint, cursocre ScorePoint) {
 //	JsonData  string
 
 func client(id string) {
-	u := url.URL{Scheme: "wss", Host: *addr, Path: "/connect"}
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/connect"}
 	fmt.Println("start game to ", id)
 
 	c, _, _ := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -215,8 +215,8 @@ func client(id string) {
 						sleeptime := rand.Intn(2) + 2
 						time.Sleep(time.Second * time.Duration(sleeptime))
 
-						x = rand.Intn(5) + 7
-						y = rand.Intn(5) + 7
+						x = rand.Intn(11) + 2
+						y = rand.Intn(11) + 2
 
 						if gameInfo.QiPan[y][x] < 0 {
 							lock.Lock()
@@ -272,11 +272,11 @@ func client(id string) {
 								}
 							}
 							if rand.Intn(8) == 0 {
-								x = score1[0].X
-								y = score1[0].Y
-							} else {
 								x = score1[1].X
 								y = score1[1].Y
+							} else {
+								x = score1[0].X
+								y = score1[0].Y
 							}
 
 							if gameInfo.QiPan[y][x] < 0 {
