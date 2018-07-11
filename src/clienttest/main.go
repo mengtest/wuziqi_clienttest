@@ -47,7 +47,7 @@ func main() {
 
 	fmt.Println("start!!")
 	var waitg sync.WaitGroup
-	for j := 0; j < 50; j++ {
+	for j := 0; j < 1; j++ {
 		waitg.Add(1)
 
 		go func() {
@@ -56,7 +56,7 @@ func main() {
 			waitg.Done()
 		}()
 
-		time.Sleep(time.Millisecond * 20)
+		time.Sleep(time.Millisecond * 100)
 	}
 
 	waitg.Wait()
@@ -111,6 +111,10 @@ func client(id string) {
 			time.Sleep(time.Second * 3)
 		}
 	}()
+
+	//clientId, _ := strconv.Atoi(id)
+	//nengli := rand.Intn(10) + 2
+	//nengli := 2
 
 	var myUid = -1
 	var myInfo = datamsg.MsgGame5GPlayerInfo{}
@@ -249,13 +253,14 @@ func client(id string) {
 
 							//score1 := make([]int, 5)
 							score1 := make([]ScorePoint, 5)
-
+							scoreMaxNum := 0
 							for y1 := 0; y1 < 15; y1++ {
 								for x1 := 0; x1 < 15; x1++ {
 									if myai.Qipan[y1][x1] == 0 {
 										score := myai.Evaluate(x1, y1, myInfo.SeatIndex+1)
 
 										pushScore(&score1, ScorePoint{Score: score, X: x1, Y: y1})
+										scoreMaxNum++
 
 										//										if score > maxScore {
 										//											maxScore = score
@@ -271,9 +276,29 @@ func client(id string) {
 									}
 								}
 							}
-							if rand.Intn(8) == 0 {
-								x = score1[1].X
-								y = score1[1].Y
+
+							fmt.Println("score0:", score1[0].Score, "-----score2:", score1[2].Score, "-----score4:", score1[4].Score)
+
+							//if rand.Intn(nengli) == 0 && scoreMaxNum >= 5 {
+							if scoreMaxNum >= 5 {
+								//								x = score1[rand.Intn(4)+1].X
+								//								y = score1[rand.Intn(4)+1].Y
+								//r := rand.Intn(2) + 2
+								if score1[0].Score < 1000 {
+									r11 := 4
+									x = score1[r11].X
+									y = score1[r11].Y
+									fmt.Println("score1 do:", score1[r11].Score)
+								} else if rand.Intn(7) == 0 {
+									r11 := 4
+									x = score1[r11].X
+									y = score1[r11].Y
+									fmt.Println("score2 do:", score1[r11].Score)
+								} else {
+									x = score1[0].X
+									y = score1[0].Y
+								}
+
 							} else {
 								x = score1[0].X
 								y = score1[0].Y
