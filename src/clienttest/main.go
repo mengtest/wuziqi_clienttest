@@ -113,7 +113,7 @@ func client(id string) {
 	}()
 
 	//clientId, _ := strconv.Atoi(id)
-	//nengli := rand.Intn(10) + 2
+	nengli := rand.Intn(7) + 2
 	//nengli := 2
 
 	var myUid = -1
@@ -219,8 +219,8 @@ func client(id string) {
 						sleeptime := rand.Intn(2) + 2
 						time.Sleep(time.Second * time.Duration(sleeptime))
 
-						x = rand.Intn(11) + 2
-						y = rand.Intn(11) + 2
+						x = rand.Intn(5) + 5
+						y = rand.Intn(5) + 5
 
 						if gameInfo.QiPan[y][x] < 0 {
 							lock.Lock()
@@ -289,7 +289,7 @@ func client(id string) {
 									x = score1[r11].X
 									y = score1[r11].Y
 									fmt.Println("score1 do:", score1[r11].Score)
-								} else if rand.Intn(7) == 0 {
+								} else if rand.Intn(nengli) == 0 {
 									r11 := 4
 									x = score1[r11].X
 									y = score1[r11].Y
